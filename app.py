@@ -29,7 +29,7 @@ export_type = st.radio(
 )
 
 # ── Section 3: Thông tin trường & admin ──────────────────────────────────────
-st.header("3. Thông tin trường & Admin")
+st.header("3. Thông tin trường & Admin (Cần có tên trường, còn lại không bắt buộc)")
 
 col_label, col_tk, col_mk = st.columns([3, 3, 3])
 col_label.markdown("**Chức danh**")
