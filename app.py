@@ -6,9 +6,9 @@ from core import process_export
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
 
-st.set_page_config(page_title="TK Onluyen - Transfer Dữ Liệu", layout="wide")
+st.set_page_config(page_title="Transfer file Export", layout="wide")
 
-st.title("📊 Transfer Dữ Liệu Tài Khoản Onluyen")
+st.title("📚 Transfer file Export")
 
 # ── Section 1: Upload file data ──────────────────────────────────────────────
 st.header("1. Tải lên file dữ liệu")
@@ -20,16 +20,16 @@ uploaded_files = st.file_uploader(
 )
 
 # ── Section 2: Loại export ───────────────────────────────────────────────────
-st.header("2. Loại file export")
+st.header("2. Chọn kiểu xuất file Export")
 export_type = st.radio(
-    "Chọn kiểu xuất file:",
+    # "Chọn kiểu xuất file:",
     options=["File Export gộp chung", "File Export tách lẻ", "File Export Tiểu học"],
     index=0,
     horizontal=True,
 )
 
 # ── Section 3: Thông tin trường & admin ──────────────────────────────────────
-st.header("3. Thông tin trường & Admin (không bắt buộc)")
+st.header("3. Thông tin trường & Admin")
 
 col_label, col_tk, col_mk = st.columns([3, 3, 3])
 col_label.markdown("**Chức danh**")
