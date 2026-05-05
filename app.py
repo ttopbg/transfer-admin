@@ -22,7 +22,7 @@ uploaded_files = st.file_uploader(
 # ── Section 2: Loại export ───────────────────────────────────────────────────
 st.header("2. Chọn kiểu xuất file Export")
 export_type = st.radio(
-    ,
+    "Chọn kiểu file",
     options=["File Export gộp chung", "File Export tách lẻ", "File Export Tiểu học"],
     index=0,
     horizontal=True,
