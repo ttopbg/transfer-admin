@@ -5,7 +5,7 @@ from copy import copy
 from pathlib import Path
 
 import openpyxl
-from openpyxl.styles import Border, Side
+from openpyxl.styles import Border, Side, Font
 
 
 # ── Border helper ─────────────────────────────────────────────────────────────
@@ -17,6 +17,26 @@ def _apply_border(ws, min_row, max_row, min_col, max_col):
     for row in ws.iter_rows(min_row=min_row, max_row=max_row, min_col=min_col, max_col=max_col):
         for cell in row:
             cell.border = _THIN_BORDER
+
+
+# ── Font helper ───────────────────────────────────────────────────────────────
+def _apply_font_wb(wb, font_name="Times New Roman"):
+    """Áp dụng font_name cho toàn bộ cell có giá trị trong workbook, giữ nguyên các thuộc tính font còn lại."""
+    for ws in wb.worksheets:
+        for row in ws.iter_rows():
+            for cell in row:
+                if cell.value is not None:
+                    existing = cell.font
+                    cell.font = Font(
+                        name=font_name,
+                        bold=existing.bold,
+                        italic=existing.italic,
+                        underline=existing.underline,
+                        strike=existing.strike,
+                        color=existing.color,
+                        size=existing.size,
+                        vertAlign=existing.vertAlign,
+                    )
 
 
 # ── Load data from uploaded files ────────────────────────────────────────────
@@ -118,6 +138,7 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
         _fill_admin(wb["ADMIN"], admin_info)
         _fill_giaovien(wb["GIAO-VIEN"], gv_rows)
         _fill_hochsinh(wb["HOC-SINH"], hs_rows)
+        _apply_font_wb(wb)
 
         fname = f"TK Onluyen (Admin, GV, HS) - {label}.xlsx" if label else "TK Onluyen (Admin, GV, HS).xlsx"
         result.append((fname, _wb_to_bytes(wb)))
@@ -134,6 +155,7 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
             if sname not in ("ADMIN", "HDSD"):
                 del wb_admin[sname]
         _fill_admin(wb_admin["ADMIN"], admin_info)
+        _apply_font_wb(wb_admin)
         fname_admin = f"TK Onluyen - ADMIN - {label}.xlsx" if label else "TK Onluyen - ADMIN.xlsx"
         result.append((fname_admin, _wb_to_bytes(wb_admin)))
 
@@ -143,6 +165,7 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
             if sname not in ("GIAO-VIEN", "HDSD"):
                 del wb_gv[sname]
         _fill_giaovien(wb_gv["GIAO-VIEN"], gv_rows)
+        _apply_font_wb(wb_gv)
         fname_gv = f"TK Onluyen - GIAO-VIEN - {label}.xlsx" if label else "TK Onluyen - GIAO-VIEN.xlsx"
         result.append((fname_gv, _wb_to_bytes(wb_gv)))
 
@@ -152,6 +175,7 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
             if sname not in ("HOC-SINH", "HDSD"):
                 del wb_hs[sname]
         _fill_hochsinh(wb_hs["HOC-SINH"], hs_rows)
+        _apply_font_wb(wb_hs)
         fname_hs = f"TK Onluyen - HOC-SINH - {label}.xlsx" if label else "TK Onluyen - HOC-SINH.xlsx"
         result.append((fname_hs, _wb_to_bytes(wb_hs)))
 
@@ -162,6 +186,7 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
         _fill_admin(wb["ADMIN"], admin_info)
         _fill_giaovien(wb["GIAO-VIEN"], gv_rows)
         _fill_hochsinh(wb["HOC-SINH"], hs_rows)
+        _apply_font_wb(wb)
 
         fname = f"TK Onluyen (Tiểu học) - {label}.xlsx" if label else "TK Onluyen (Tiểu học).xlsx"
         result.append((fname, _wb_to_bytes(wb)))
