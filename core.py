@@ -126,7 +126,7 @@ def _build_name(template_name, ten_truong, suffix=""):
 
 
 # ── Main export orchestrator ──────────────────────────────────────────────────
-def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_truong):
+def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_truong, tach_le_subset=None):
     gv_rows, hs_rows = _load_data(uploaded_files)
     label = ten_truong or ""
     result = []  # list of (filename, bytes)
@@ -145,39 +145,38 @@ def process_export(uploaded_files, export_type, admin_info, templates_dir, ten_t
 
     elif export_type == "File Export tách lẻ":
         tpl_path = templates_dir / "TK Onluyen (Admin, GV, HS).xlsx"
-        tpl_wb = openpyxl.load_workbook(str(tpl_path))
-        hdsd_ws = tpl_wb["HDSD"]
+        # subset mặc định là tất cả nếu không truyền vào
+        subset = tach_le_subset if tach_le_subset else ["ADMIN", "GIAO-VIEN", "HOC-SINH"]
 
-        # ── File ADMIN ────────────────────────────────────────────
-        wb_admin = openpyxl.load_workbook(str(tpl_path))
-        # Xoá sheet không cần, giữ ADMIN + HDSD
-        for sname in wb_admin.sheetnames:
-            if sname not in ("ADMIN", "HDSD"):
-                del wb_admin[sname]
-        _fill_admin(wb_admin["ADMIN"], admin_info)
-        _apply_font_wb(wb_admin)
-        fname_admin = f"TK Onluyen - ADMIN - {label}.xlsx" if label else "TK Onluyen - ADMIN.xlsx"
-        result.append((fname_admin, _wb_to_bytes(wb_admin)))
+        if "ADMIN" in subset:
+            wb_admin = openpyxl.load_workbook(str(tpl_path))
+            for sname in wb_admin.sheetnames:
+                if sname not in ("ADMIN", "HDSD"):
+                    del wb_admin[sname]
+            _fill_admin(wb_admin["ADMIN"], admin_info)
+            _apply_font_wb(wb_admin)
+            fname_admin = f"TK Onluyen - ADMIN - {label}.xlsx" if label else "TK Onluyen - ADMIN.xlsx"
+            result.append((fname_admin, _wb_to_bytes(wb_admin)))
 
-        # ── File GIAO-VIEN ────────────────────────────────────────
-        wb_gv = openpyxl.load_workbook(str(tpl_path))
-        for sname in wb_gv.sheetnames:
-            if sname not in ("GIAO-VIEN", "HDSD"):
-                del wb_gv[sname]
-        _fill_giaovien(wb_gv["GIAO-VIEN"], gv_rows)
-        _apply_font_wb(wb_gv)
-        fname_gv = f"TK Onluyen - GIAO-VIEN - {label}.xlsx" if label else "TK Onluyen - GIAO-VIEN.xlsx"
-        result.append((fname_gv, _wb_to_bytes(wb_gv)))
+        if "GIAO-VIEN" in subset:
+            wb_gv = openpyxl.load_workbook(str(tpl_path))
+            for sname in wb_gv.sheetnames:
+                if sname not in ("GIAO-VIEN", "HDSD"):
+                    del wb_gv[sname]
+            _fill_giaovien(wb_gv["GIAO-VIEN"], gv_rows)
+            _apply_font_wb(wb_gv)
+            fname_gv = f"TK Onluyen - GIAO-VIEN - {label}.xlsx" if label else "TK Onluyen - GIAO-VIEN.xlsx"
+            result.append((fname_gv, _wb_to_bytes(wb_gv)))
 
-        # ── File HOC-SINH ─────────────────────────────────────────
-        wb_hs = openpyxl.load_workbook(str(tpl_path))
-        for sname in wb_hs.sheetnames:
-            if sname not in ("HOC-SINH", "HDSD"):
-                del wb_hs[sname]
-        _fill_hochsinh(wb_hs["HOC-SINH"], hs_rows)
-        _apply_font_wb(wb_hs)
-        fname_hs = f"TK Onluyen - HOC-SINH - {label}.xlsx" if label else "TK Onluyen - HOC-SINH.xlsx"
-        result.append((fname_hs, _wb_to_bytes(wb_hs)))
+        if "HOC-SINH" in subset:
+            wb_hs = openpyxl.load_workbook(str(tpl_path))
+            for sname in wb_hs.sheetnames:
+                if sname not in ("HOC-SINH", "HDSD"):
+                    del wb_hs[sname]
+            _fill_hochsinh(wb_hs["HOC-SINH"], hs_rows)
+            _apply_font_wb(wb_hs)
+            fname_hs = f"TK Onluyen - HOC-SINH - {label}.xlsx" if label else "TK Onluyen - HOC-SINH.xlsx"
+            result.append((fname_hs, _wb_to_bytes(wb_hs)))
 
     elif export_type == "File Export Tiểu học":
         tpl_path = templates_dir / "TK Onluyen (Tiểu học).xlsx"
