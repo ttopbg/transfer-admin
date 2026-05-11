@@ -8,9 +8,9 @@ TEMPLATES_DIR = Path(__file__).parent / "templates"
 
 st.set_page_config(page_title="Transfer file Export", layout="wide")
 
-st.title("📚 Transfer file Export")
+st.title("🌄 Transfer file Export")
 
-# ── Section 1: Upload file data ──────────────────────────────────────────────
+# ── Section 1: Upload file data ────────────────────────────────────────────
 st.header("1. Tải lên file dữ liệu")
 uploaded_files = st.file_uploader(
     "Chọn 1 hoặc nhiều file data (.xlsx)",
@@ -19,7 +19,7 @@ uploaded_files = st.file_uploader(
     help="File data cần có sheet 'GIAO-VIEN' và/hoặc 'Danh sách HS toàn trường'",
 )
 
-# ── Section 2: Loại export ───────────────────────────────────────────────────
+# ── Section 2: Loại export ──────────────────────────────────────────────────
 st.header("2. Chọn kiểu xuất file Export")
 export_type = st.radio(
     "Chọn kiểu file",
@@ -28,7 +28,26 @@ export_type = st.radio(
     horizontal=True,
 )
 
-# ── Section 3: Thông tin trường & admin ──────────────────────────────────────
+# Sub-options chỉ hiện khi chọn "File Export tách lẻ"
+tach_le_subset = []
+if export_type == "File Export tách lẻ":
+    st.markdown("**Chọn file cần xuất** *(có thể chọn nhiều)*")
+    col_cb1, col_cb2, col_cb3 = st.columns(3)
+    with col_cb1:
+        cb_admin = st.checkbox("Export ADMIN", value=True, key="cb_admin")
+    with col_cb2:
+        cb_gv = st.checkbox("Export GIAO-VIEN", value=True, key="cb_gv")
+    with col_cb3:
+        cb_hs = st.checkbox("Export HOC-SINH", value=True, key="cb_hs")
+
+    if cb_admin:
+        tach_le_subset.append("ADMIN")
+    if cb_gv:
+        tach_le_subset.append("GIAO-VIEN")
+    if cb_hs:
+        tach_le_subset.append("HOC-SINH")
+
+# ── Section 3: Thông tin trường & admin ────────────────────────────────────
 st.header("3. Thông tin trường & Admin (Cần có tên trường, còn lại không bắt buộc)")
 
 col_label, col_tk, col_mk = st.columns([3, 3, 3])
@@ -75,6 +94,8 @@ st.header("4. Xuất file")
 if st.button("🚀 Tạo file export", type="primary", use_container_width=True):
     if not uploaded_files:
         st.error("⚠️ Vui lòng tải lên ít nhất 1 file dữ liệu.")
+    elif export_type == "File Export tách lẻ" and not tach_le_subset:
+        st.error("⚠️ Vui lòng chọn ít nhất 1 loại file để export (ADMIN / GIAO-VIEN / HOC-SINH).")
     else:
         with st.spinner("Đang xử lý..."):
             try:
@@ -84,6 +105,7 @@ if st.button("🚀 Tạo file export", type="primary", use_container_width=True)
                     admin_info=admin_info,
                     templates_dir=TEMPLATES_DIR,
                     ten_truong=ten_truong.strip(),
+                    tach_le_subset=tach_le_subset,  # [] nếu không phải tách lẻ
                 )
                 st.success(f"✅ Tạo thành công {len(result)} file!")
 
